@@ -1,5 +1,9 @@
 2021-02-10  Érico Nogueira  <ericonr@disroot.org>
 
+	* configure.ac: Bumped version to 1.4.0.
+
+2021-02-10  Érico Nogueira  <ericonr@disroot.org>
+
 	* Updated argp to glibc 2.33.
 	* README.md: create file.
 
