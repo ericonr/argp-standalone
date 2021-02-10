@@ -1,22 +1,21 @@
 /* Word-wrapping and line-truncating streams.
-   Copyright (C) 1997, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1997-2021 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
 
 /* This package emulates glibc `line_wrap_stream' semantics for systems that
    don't have that.  If the system does have it, it is just a wrapper for
@@ -30,25 +29,15 @@
 #include <string.h>
 #include <unistd.h>
 
-#if _LIBC || (defined (HAVE_FLOCKFILE) && defined(HAVE_PUTC_UNLOCKED) \
-     && defined (HAVE_FPUTS_UNLOCKED) && defined (HAVE_FWRITE_UNLOCKED) )
-/* Use locking funxtions */
-# define FLOCKFILE(f) flockfile(f)
-# define FUNLOCKFILE(f) funlockfile(f)
-# define PUTC_UNLOCKED(c, f) putc_unlocked((c), (f))
-# define FPUTS_UNLOCKED(s, f) fputs_unlocked((s), (f))
-# define FWRITE_UNLOCKED(b, s, n, f) fwrite_unlocked((b), (s), (n), (f))
-#else
-/* Disable stdio locking */
-# define FLOCKFILE(f)
-# define FUNLOCKFILE(f)
-# define PUTC_UNLOCKED(c, f) putc((c), (f))
-# define FPUTS_UNLOCKED(s, f) fputs((s), (f))
-# define FWRITE_UNLOCKED(b, s, n, f) fwrite((b), (s), (n), (f))
-#endif /* No thread safe i/o */
+#ifndef PRINTF_STYLE
+# if __GNUC__ >= 2
+#  define PRINTF_STYLE(f, a) __attribute__ ((__format__ (__printf__, f, a)))
+# else
+#  define PRINTF_STYLE(f, a)
+# endif
+#endif
 
-#if    (_LIBC - 0 && !defined (USE_IN_LIBIO)) \
-    || (defined (__GNU_LIBRARY__) && defined (HAVE_LINEWRAP_H))
+#if 0
 /* line_wrap_stream is available, so use that.  */
 #define ARGP_FMTSTREAM_USE_LINEWRAP
 #endif
@@ -95,10 +84,6 @@ typedef FILE *argp_fmtstream_t;
 #else /* !ARGP_FMTSTREAM_USE_LINEWRAP */
 /* Guess we have to define our own version.  */
 
-#ifndef __const
-#define __const const
-#endif
-
 
 struct argp_fmtstream
 {
@@ -139,22 +124,22 @@ extern void __argp_fmtstream_free (argp_fmtstream_t __fs);
 extern void argp_fmtstream_free (argp_fmtstream_t __fs);
 
 extern ssize_t __argp_fmtstream_printf (argp_fmtstream_t __fs,
-				       __const char *__fmt, ...)
+					const char *__fmt, ...)
      PRINTF_STYLE(2,3);
 extern ssize_t argp_fmtstream_printf (argp_fmtstream_t __fs,
-				      __const char *__fmt, ...)
+				      const char *__fmt, ...)
      PRINTF_STYLE(2,3);
 
 extern int __argp_fmtstream_putc (argp_fmtstream_t __fs, int __ch);
 extern int argp_fmtstream_putc (argp_fmtstream_t __fs, int __ch);
 
-extern int __argp_fmtstream_puts (argp_fmtstream_t __fs, __const char *__str);
-extern int argp_fmtstream_puts (argp_fmtstream_t __fs, __const char *__str);
+extern int __argp_fmtstream_puts (argp_fmtstream_t __fs, const char *__str);
+extern int argp_fmtstream_puts (argp_fmtstream_t __fs, const char *__str);
 
 extern size_t __argp_fmtstream_write (argp_fmtstream_t __fs,
-				      __const char *__str, size_t __len);
+				      const char *__str, size_t __len);
 extern size_t argp_fmtstream_write (argp_fmtstream_t __fs,
-				    __const char *__str, size_t __len);
+				    const char *__str, size_t __len);
 
 /* Access macros for various bits of state.  */
 #define argp_fmtstream_lmargin(__fs) ((__fs)->lmargin)
@@ -212,8 +197,7 @@ extern int __argp_fmtstream_ensure (argp_fmtstream_t __fs, size_t __amount);
 #endif
 
 ARGP_FS_EI size_t
-__argp_fmtstream_write (argp_fmtstream_t __fs,
-			__const char *__str, size_t __len)
+__argp_fmtstream_write (argp_fmtstream_t __fs, const char *__str, size_t __len)
 {
   if (__fs->p + __len <= __fs->end || __argp_fmtstream_ensure (__fs, __len))
     {
@@ -226,7 +210,7 @@ __argp_fmtstream_write (argp_fmtstream_t __fs,
 }
 
 ARGP_FS_EI int
-__argp_fmtstream_puts (argp_fmtstream_t __fs, __const char *__str)
+__argp_fmtstream_puts (argp_fmtstream_t __fs, const char *__str)
 {
   size_t __len = strlen (__str);
   if (__len)
