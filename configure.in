@@ -4,10 +4,17 @@ dnl This configure.in is only for building a standalone argp library.
 
 AC_INIT(argp-ba.c)
 
-AM_INIT_AUTOMAKE(argp, standalone-1.0)
+AM_INIT_AUTOMAKE(argp, standalone-1.1)
 
 AM_CONFIG_HEADER(config.h)
 
+# GNU libc defaults to supplying the ISO C library functions only. The
+# _GNU_SOURCE define enables these extensions, in particular we want
+# errno.h to declare program_invocation_name. Enable it on all
+# systems; no problems have been reported with it so far.
+
+CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
+	
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_MAKE_SET

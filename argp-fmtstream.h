@@ -99,6 +99,17 @@ typedef FILE *argp_fmtstream_t;
 #ifndef __const
 #define __const const
 #endif
+
+/* FIXME: We could use a configure test to check for __attribute__,
+ * just like lsh does. */
+#ifndef PRINTF_STYLE
+# if __GNUC__ >= 2
+#  define PRINTF_STYLE(f, a) __attribute__ ((__format__ (__printf__, f, a)))
+# else
+#  define PRINTF_STYLE(f, a)
+# endif
+#endif
+
 
 struct argp_fmtstream
 {
@@ -140,10 +151,10 @@ extern void argp_fmtstream_free (argp_fmtstream_t __fs);
 
 extern ssize_t __argp_fmtstream_printf (argp_fmtstream_t __fs,
 				       __const char *__fmt, ...)
-     __attribute__ ((__format__ (printf, 2, 3)));
+     PRINTF_STYLE(2,3);
 extern ssize_t argp_fmtstream_printf (argp_fmtstream_t __fs,
 				      __const char *__fmt, ...)
-     __attribute__ ((__format__ (printf, 2, 3)));
+     PRINTF_STYLE(2,3);
 
 extern int __argp_fmtstream_putc (argp_fmtstream_t __fs, int __ch);
 extern int argp_fmtstream_putc (argp_fmtstream_t __fs, int __ch);

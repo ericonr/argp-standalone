@@ -138,6 +138,8 @@ argp_default_parser (int key, char *arg, struct argp_state *state)
 
     case OPT_HANG:
       _argp_hang = atoi (arg ? arg : "3600");
+      fprintf(state->err_stream, "%s: pid = %ld\n",
+	      state->name, (long) getpid());
       while (_argp_hang-- > 0)
 	__sleep (1);
       break;
@@ -196,12 +198,6 @@ struct group
   /* Which argp this group is from.  */
   const struct argp *argp;
 
-#if 0
-  /* Points to the point in SHORT_OPTS corresponding to the end of the short
-     options for this group.  We use it to determine from which group a
-     particular short options is from.  */
-  char *short_end;
-#endif
   /* The number of non-option args sucessfully handled by this parser.  */
   unsigned args_processed;
 
@@ -644,18 +640,7 @@ parser_init (struct parser *parser, const struct argp *argp,
       parser->state.next = 1;
     }
   else
-  {
-#if HAVE_PROGRAM_INVOCATION_SHORT_NAME
-    parser->state.name = program_invocation_short_name;
-#elif HAVE_PROGRAM_INVOCATION_NAME
-    parser->state.name = __argp_basename(program_invocation_name);
-#else
-    /* FIXME: What now? Miles suggests that it is better to use NULL,
-       but currently the value is passed on directly to
-       fputs_unlocked(), so that requires more changes. */
-    parser->state.name = "";
-#endif
-  }
+    parser->state.name = __argp_short_program_name(NULL);
   
   return 0;
 }
@@ -942,8 +927,9 @@ parser_parse_next (struct parser *parser, int *arg_ebadkey)
 {
   if (parser->state.quoted && parser->state.next < parser->state.quoted)
     /* The next argument pointer has been moved to before the quoted
-       region, so pretend we never saw the quoting `--', and start looking for options again.  If the `--' is still there
-       we'lljust process it one more time. */
+       region, so pretend we never saw the quoting `--', and start
+       looking for options again. If the `--' is still there we'll just
+       process it one more time. */
     parser->state.quoted = parser->args_only = 0;
 
   /* Give FIRST_NONOPT & LAST_NONOPT rational values if NEXT has been
@@ -1028,30 +1014,6 @@ parser_parse_next (struct parser *parser, int *arg_ebadkey)
 				    parser->state.argv[parser->state.next]);
 	}
       
-#if 0
-      /* FIXME: This doesn't seem right. It would be cleaner not to exhange any
-       * arguments until we get a new non-option argument in the input. */
-      if (parser->ordering == PERMUTE)
-	{
-	  if ( (parser->first_nonopt != parser->last_nonopt)
-	       && (parser->last_nonopt != parser->state.next) )
-	    exchange(parser);
-	  
-	  else if (parser->last_nonopt != parser->state.next)
-	    parser->first_nonopt = parser->state.next;
-
-	  /* Skip any additional non-options
-	     and extend the range of non-options previously skipped.  */
-
-	  while ( (parser->state.next < parser->state.argc)
-		  && (classify_arg(parser,
-				   parser->state.argv[parser->state.next],
-				   NULL) == ARG_ARG))
-	    parser->state.next++;
-
-	  parser->last_nonopt = parser->state.next;
-	}
-#endif
       if (parser->state.next >= parser->state.argc)
 	/* Almost done. If there are non-options that we skipped
 	   previously, we should process them now. */

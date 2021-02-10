@@ -39,6 +39,17 @@
 typedef int error_t;
 # define __error_t_defined
 #endif
+
+/* FIXME: We could use a configure test to check for __attribute__,
+ * just like lsh does. */
+#ifndef PRINTF_STYLE
+# if __GNUC__ >= 2
+#  define PRINTF_STYLE(f, a) __attribute__ ((__format__ (__printf__, f, a)))
+# else
+#  define PRINTF_STYLE(f, a)
+# endif
+#endif
+
 
 #ifdef  __cplusplus
 extern "C" {
@@ -478,10 +489,10 @@ extern void __argp_usage (__const struct argp_state *__state) __THROW;
    message, then exit (1).  */
 extern void argp_error (__const struct argp_state *__restrict __state,
 			__const char *__restrict __fmt, ...) __THROW
-     __attribute__ ((__format__ (__printf__, 2, 3)));
+     PRINTF_STYLE(2,3);
 extern void __argp_error (__const struct argp_state *__restrict __state,
 			  __const char *__restrict __fmt, ...) __THROW
-     __attribute__ ((__format__ (__printf__, 2, 3)));
+     PRINTF_STYLE(2,3);
 
 /* Similar to the standard gnu error-reporting function error(), but will
    respect the ARGP_NO_EXIT and ARGP_NO_ERRS flags in STATE, and will print
@@ -494,11 +505,11 @@ extern void __argp_error (__const struct argp_state *__restrict __state,
 extern void argp_failure (__const struct argp_state *__restrict __state,
 			  int __status, int __errnum,
 			  __const char *__restrict __fmt, ...) __THROW
-     __attribute__ ((__format__ (__printf__, 4, 5)));
+     PRINTF_STYLE(4,5);
 extern void __argp_failure (__const struct argp_state *__restrict __state,
 			    int __status, int __errnum,
 			    __const char *__restrict __fmt, ...) __THROW
-     __attribute__ ((__format__ (__printf__, 4, 5)));
+     PRINTF_STYLE(4,5);
 
 /* Returns true if the option OPT is a valid short option.  */
 extern int _option_is_short (__const struct argp_option *__opt) __THROW;
@@ -521,6 +532,12 @@ extern void *__argp_input (__const struct argp *__restrict __argp,
 /* Used for extracting the program name from argv[0] */
 extern char *_argp_basename(char *name) __THROW;
 extern char *__argp_basename(char *name) __THROW;
+
+/* Getting the program name given an argp state */
+extern char *
+_argp_short_program_name(const struct argp_state *state) __THROW;
+extern char *
+__argp_short_program_name(const struct argp_state *state) __THROW;
 
 
 #ifdef __USE_EXTERN_INLINES

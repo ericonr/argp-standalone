@@ -389,4 +389,87 @@ __argp_fmtstream_printf (struct argp_fmtstream *fs, const char *fmt, ...)
 weak_alias (__argp_fmtstream_printf, argp_fmtstream_printf)
 #endif
 
+/* Duplicate the inline definitions in argp-fmtstream.h, for compilers
+ * that don't do inlining. */
+size_t
+__argp_fmtstream_write (argp_fmtstream_t __fs,
+			__const char *__str, size_t __len)
+{
+  if (__fs->p + __len <= __fs->end || __argp_fmtstream_ensure (__fs, __len))
+    {
+      memcpy (__fs->p, __str, __len);
+      __fs->p += __len;
+      return __len;
+    }
+  else
+    return 0;
+}
+
+int
+__argp_fmtstream_puts (argp_fmtstream_t __fs, __const char *__str)
+{
+  size_t __len = strlen (__str);
+  if (__len)
+    {
+      size_t __wrote = __argp_fmtstream_write (__fs, __str, __len);
+      return __wrote == __len ? 0 : -1;
+    }
+  else
+    return 0;
+}
+
+int
+__argp_fmtstream_putc (argp_fmtstream_t __fs, int __ch)
+{
+  if (__fs->p < __fs->end || __argp_fmtstream_ensure (__fs, 1))
+    return *__fs->p++ = __ch;
+  else
+    return EOF;
+}
+
+/* Set __FS's left margin to __LMARGIN and return the old value.  */
+size_t
+__argp_fmtstream_set_lmargin (argp_fmtstream_t __fs, size_t __lmargin)
+{
+  size_t __old;
+  if ((size_t) (__fs->p - __fs->buf) > __fs->point_offs)
+    __argp_fmtstream_update (__fs);
+  __old = __fs->lmargin;
+  __fs->lmargin = __lmargin;
+  return __old;
+}
+
+/* Set __FS's right margin to __RMARGIN and return the old value.  */
+size_t
+__argp_fmtstream_set_rmargin (argp_fmtstream_t __fs, size_t __rmargin)
+{
+  size_t __old;
+  if ((size_t) (__fs->p - __fs->buf) > __fs->point_offs)
+    __argp_fmtstream_update (__fs);
+  __old = __fs->rmargin;
+  __fs->rmargin = __rmargin;
+  return __old;
+}
+
+/* Set FS's wrap margin to __WMARGIN and return the old value.  */
+size_t
+__argp_fmtstream_set_wmargin (argp_fmtstream_t __fs, size_t __wmargin)
+{
+  size_t __old;
+  if ((size_t) (__fs->p - __fs->buf) > __fs->point_offs)
+    __argp_fmtstream_update (__fs);
+  __old = __fs->wmargin;
+  __fs->wmargin = __wmargin;
+  return __old;
+}
+
+/* Return the column number of the current output point in __FS.  */
+size_t
+__argp_fmtstream_point (argp_fmtstream_t __fs)
+{
+  if ((size_t) (__fs->p - __fs->buf) > __fs->point_offs)
+    __argp_fmtstream_update (__fs);
+  return __fs->point_col >= 0 ? __fs->point_col : 0;
+}
+
 #endif /* !ARGP_FMTSTREAM_USE_LINEWRAP */
