@@ -490,10 +490,6 @@ extern void __argp_state_help (const struct argp_state *__restrict __state,
 			       FILE *__restrict __stream,
 			       unsigned int __flags);
 
-/* Possibly output the standard usage message for ARGP to stderr and exit.  */
-extern void argp_usage (const struct argp_state *__state);
-extern void __argp_usage (const struct argp_state *__state);
-
 /* If appropriate, print the printf string FMT and following args, preceded
    by the program name and `:', to stderr, and followed by a `Try ... --help'
    message, then exit (1).  */
@@ -521,15 +517,6 @@ extern void __argp_failure (const struct argp_state *__restrict __state,
 			    const char *__restrict __fmt, ...)
      PRINTF_STYLE(4,5);
 
-/* Returns true if the option OPT is a valid short option.  */
-extern int _option_is_short (const struct argp_option *__opt) __THROW;
-extern int __option_is_short (const struct argp_option *__opt) __THROW;
-
-/* Returns true if the option OPT is in fact the last (unused) entry in an
-   options array.  */
-extern int _option_is_end (const struct argp_option *__opt) __THROW;
-extern int __option_is_end (const struct argp_option *__opt) __THROW;
-
 /* Return the input field for ARGP in the parser corresponding to STATE; used
    by the help routines.  */
 extern void *_argp_input (const struct argp *__restrict __argp,
@@ -539,7 +526,7 @@ extern void *__argp_input (const struct argp *__restrict __argp,
 			   const struct argp_state *__restrict __state)
      __THROW;
 
-#ifdef __USE_EXTERN_INLINES
+#if 1
 
 # if 1
 #  define __argp_usage argp_usage
@@ -549,15 +536,17 @@ extern void *__argp_input (const struct argp *__restrict __argp,
 # endif
 
 # ifndef ARGP_EI
-#  define ARGP_EI extern __inline
+#  define ARGP_EI static __inline
 # endif
 
+/* Possibly output the standard usage message for ARGP to stderr and exit.  */
 ARGP_EI void
 __argp_usage (const struct argp_state *__state)
 {
   __argp_state_help (__state, stderr, ARGP_HELP_STD_USAGE);
 }
 
+/* Returns true if the option OPT is a valid short option.  */
 ARGP_EI int
 __NTH (__option_is_short (const struct argp_option *__opt))
 {
@@ -570,6 +559,8 @@ __NTH (__option_is_short (const struct argp_option *__opt))
     }
 }
 
+/* Returns true if the option OPT is in fact the last (unused) entry in an
+   options array.  */
 ARGP_EI int
 __NTH (__option_is_end (const struct argp_option *__opt))
 {
