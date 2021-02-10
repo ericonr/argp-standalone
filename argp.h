@@ -40,6 +40,15 @@ typedef int error_t;
 # define __error_t_defined
 #endif
 
+/* FIXME: What's the right way to check for __restrict? Sun's cc seems
+   not to have it. Perhaps it's easiest to just delete the use of
+   __restrict from the prototypes. */
+#ifndef __restrict
+# ifndef __GNUC___
+#  define __restrict
+# endif
+#endif
+
 /* NOTE: We can't use the autoconf tests, since this is supposed to be
    an installed header file and argp's config.h is of course not
    installed. */

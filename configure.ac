@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl This configure.ac is only for building a standalone argp library.
 AC_PREREQ(2.54)
 AC_INIT(argp-ba.c)
-AM_INIT_AUTOMAKE(argp, standalone-1.2)
+AM_INIT_AUTOMAKE(argp, standalone-1.3)
 AM_CONFIG_HEADER(config.h)
 
 # GNU libc defaults to supplying the ISO C library functions only. The

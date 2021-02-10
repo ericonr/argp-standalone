@@ -1,6 +1,6 @@
 # From glibc
 
-# Copyright (C) 1997, 2003 Free Software Foundation, Inc.
+# Copyright (C) 1997, 2003, 2004 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ EXTRA_DIST = mempcpy.c strchrnul.c strndup.c Versions
 # Leaves out argp-fs-xinl.c and argp-xinl.c 
 libargp_a_SOURCES = argp-ba.c argp-eexst.c argp-fmtstream.c \
 		    argp-help.c argp-parse.c argp-pv.c \
-		    argp-pvh.c  argp-eexst.c
+		    argp-pvh.c
 
 libargp_a_LIBADD = $(LIBOBJS)
 
