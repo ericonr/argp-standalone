@@ -1,3 +1,8 @@
+2021-02-10  Érico Nogueira  <ericonr@disroot.org>
+
+	* Updated argp to glibc 2.33.
+	* README.md: create file.
+
 2004-02-23  Niels Möller  <niels@s3.kth.se>
 
 	* configure.ac: Bumped version to standalone-1.3.
