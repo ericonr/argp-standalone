@@ -1683,7 +1683,7 @@ void __argp_help (const struct argp *argp, FILE *stream,
 weak_alias (__argp_help, argp_help)
 #endif
 
-#if 1
+#if !HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
 char *__argp_basename (char *name)
 {
   char *short_name = strrchr (name, '/');
@@ -1857,7 +1857,7 @@ __argp_failure_internal (const struct argp_state *state, int status,
 #endif
 	    }
 
-#ifdef 0
+#if 0
 	  if (_IO_fwide (stream, 0) > 0)
 	    putwc_unlocked (L'\n', stream);
 	  else
