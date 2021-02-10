@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing help output
-   Copyright (C) 1995,1996,1997,1998,1999,2000 Free Software Foundation, Inc.
+   Copyright (C) 1995,96,97,98,99,2000, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -50,9 +50,9 @@ char *alloca ();
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
-#include <malloc.h>
 #include <ctype.h>
-
+/* Does any system still need malloc.h? If so, we'd need a configure
+   test. */
 
 #ifndef _
 /* This is for other GNU distributions with internationalized messages.  */
@@ -72,16 +72,6 @@ char *alloca ();
 #include "argp-namefrob.h"
 
 
-/* FIXME: We could use a configure test to check for __attribute__,
- * just like lsh does. */
-#ifndef UNUSED
-# if __GNUC__ >= 2
-#  define UNUSED __attribute__ ((__unused__))
-# else
-#  define UNUSED
-# endif
-#endif
-
 #ifndef _LIBC
 # ifndef __strchrnul
 #  define __strchrnul strchrnul
@@ -91,18 +81,14 @@ char *alloca ();
 # endif
 /* We need to use a different name, as __strndup is likely a macro. */
 # define STRNDUP strndup
-# ifndef __flockfile
-#  define __flockfile flockfile
-# endif
-# ifndef __funlockfile
-#  define __funlockfile funlockfile
-# endif
 # if HAVE_STRERROR
 #  define STRERROR strerror
 # else
 #  define STRERROR(x) (sys_errlist[x])
 # endif
 #else /* _LIBC */
+# define FLOCKFILE __flockfile
+# define FUNLOCKFILE __funlockfile
 # define STRNDUP __strndup
 # define STRERROR strerror
 #endif
@@ -196,7 +182,7 @@ static const struct uparam_name uparam_names[] =
   { "header-col",     0, offsetof (struct uparams, header_col) },
   { "usage-indent",   0, offsetof (struct uparams, usage_indent) },
   { "rmargin",        0, offsetof (struct uparams, rmargin) },
-  { 0 }
+  { 0, 0, 0 }
 };
 
 /* Read user options from the environment, and fill in UPARAMS appropiately.  */
@@ -1114,17 +1100,14 @@ hol_entry_help (struct hol_entry *entry, const struct argp_state *state,
   int old_wm = __argp_fmtstream_wmargin (stream);
   /* PEST is a state block holding some of our variables that we'd like to
      share with helper functions.  */
-#ifdef __GNUC__
-  struct pentry_state pest = { entry, stream, hhstate, 1, state };
-#else /* !__GNUC__ */
-  /* Decent initializers are a GNU extension */
+
+  /* Decent initializers are a GNU extension, so don't use it here. */
   struct pentry_state pest;
   pest.entry = entry;
   pest.stream = stream;
   pest.hhstate = hhstate;
   pest.first = 1;
   pest.state = state;
-#endif /* !__GNUC__ */
 
   if (! odoc (real))
     for (opt = real, num = entry->num; num > 0; opt++, num--)
@@ -1596,7 +1579,7 @@ _help (const struct argp *argp, const struct argp_state *state, FILE *stream,
   if (! stream)
     return;
 
-  __flockfile (stream);
+  FLOCKFILE (stream);
 
   if (! uparams.valid)
     fill_in_uparams (state);
@@ -1604,7 +1587,7 @@ _help (const struct argp *argp, const struct argp_state *state, FILE *stream,
   fs = __argp_make_fmtstream (stream, 0, uparams.rmargin, 0);
   if (! fs)
     {
-      __funlockfile (stream);
+      FUNLOCKFILE (stream);
       return;
     }
 
@@ -1712,7 +1695,7 @@ Try `%s --help' or `%s --usage' for more information.\n"),
       anything = 1;
     }
 
-  __funlockfile (stream);
+  FUNLOCKFILE (stream);
 
   if (hol)
     hol_free (hol);
@@ -1742,11 +1725,11 @@ __argp_short_program_name(const struct argp_state *state)
 {
   if (state)
     return state->name;
-#if HAVE_PROGRAM_INVOCATION_SHORT_NAME
+#if HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
   return program_invocation_short_name;
-#elif HAVE_PROGRAM_INVOCATION_NAME
+#elif HAVE_DECL_PROGRAM_INVOCATION_NAME
   return __argp_basename(program_invocation_name);
-#else /* !HAVE_PROGRAM_INVOCATION_NAME */
+#else /* !HAVE_DECL_PROGRAM_INVOCATION_NAME */
   /* FIXME: What now? Miles suggests that it is better to use NULL,
      but currently the value is passed on directly to fputs_unlocked,
      so that requires more changes. */
@@ -1754,7 +1737,7 @@ __argp_short_program_name(const struct argp_state *state)
 #  warning No reasonable value to return
   return "";
 # endif /* __GNUC__ */
-#endif /* !HAVE_PROGRAM_INVOCATION_NAME */
+#endif /* !HAVE_DECL_PROGRAM_INVOCATION_NAME */
 }
 
 /* Output, if appropriate, a usage message for STATE to STREAM.  FLAGS are
@@ -1797,22 +1780,22 @@ __argp_error (const struct argp_state *state, const char *fmt, ...)
 	{
 	  va_list ap;
 
-	  __flockfile (stream);
+	  FLOCKFILE (stream);
 
-	  fputs_unlocked (__argp_short_program_name(state),
+	  FPUTS_UNLOCKED (__argp_short_program_name(state),
 			  stream);
-	  putc_unlocked (':', stream);
-	  putc_unlocked (' ', stream);
+	  PUTC_UNLOCKED (':', stream);
+	  PUTC_UNLOCKED (' ', stream);
 
 	  va_start (ap, fmt);
 	  vfprintf (stream, fmt, ap);
 	  va_end (ap);
 
-	  putc_unlocked ('\n', stream);
+	  PUTC_UNLOCKED ('\n', stream);
 
 	  __argp_state_help (state, stream, ARGP_HELP_STD_ERR);
 
-	  __funlockfile (stream);
+	  FUNLOCKFILE (stream);
 	}
     }
 }
@@ -1838,17 +1821,17 @@ __argp_failure (const struct argp_state *state, int status, int errnum,
 
       if (stream)
 	{
-	  __flockfile (stream);
+	  FLOCKFILE (stream);
 
-	  fputs_unlocked (__argp_short_program_name(state),
+	  FPUTS_UNLOCKED (__argp_short_program_name(state),
 			  stream);
 
 	  if (fmt)
 	    {
 	      va_list ap;
 
-	      putc_unlocked (':', stream);
-	      putc_unlocked (' ', stream);
+	      PUTC_UNLOCKED (':', stream);
+	      PUTC_UNLOCKED (' ', stream);
 
 	      va_start (ap, fmt);
 	      vfprintf (stream, fmt, ap);
@@ -1857,14 +1840,14 @@ __argp_failure (const struct argp_state *state, int status, int errnum,
 
 	  if (errnum)
 	    {
-	      putc_unlocked (':', stream);
-	      putc_unlocked (' ', stream);
+	      PUTC_UNLOCKED (':', stream);
+	      PUTC_UNLOCKED (' ', stream);
 	      fputs (STRERROR (errnum), stream);
 	    }
 
-	  putc_unlocked ('\n', stream);
+	  PUTC_UNLOCKED ('\n', stream);
 
-	  __funlockfile (stream);
+	  FUNLOCKFILE (stream);
 
 	  if (status && (!state || !(state->flags & ARGP_NO_EXIT)))
 	    exit (status);

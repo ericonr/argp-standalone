@@ -1,6 +1,6 @@
 # From glibc
 
-# Copyright (C) 1997 Free Software Foundation, Inc.
+# Copyright (C) 1997, 2003 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,12 +19,13 @@
 # 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AUTOMAKE_OPTIONS = foreign
+SUBDIRS = . testsuite
+
+LIBOBJS = @LIBOBJS@
 
 noinst_LIBRARIES = libargp.a
 noinst_PROGRAMS = argp-test
 noinst_HEADERS = argp.h argp-fmtstream.h argp-namefrob.h # argp-comp.h
-
-all: libargp.a
 
 EXTRA_DIST = mempcpy.c strchrnul.c strndup.c Versions
 
@@ -33,7 +34,7 @@ libargp_a_SOURCES = argp-ba.c argp-eexst.c argp-fmtstream.c \
 		    argp-help.c argp-parse.c argp-pv.c \
 		    argp-pvh.c  argp-eexst.c
 
-libargp_a_LIBADD = @LIBOBJS@
+libargp_a_LIBADD = $(LIBOBJS)
 
 argp_test_LDADD = libargp.a
 

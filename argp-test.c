@@ -33,14 +33,6 @@
 
 #include "argp.h"
 
-#ifndef UNUSED
-# if __GNUC__ >= 2
-#  define UNUSED __attribute__ ((__unused__))
-# else
-#  define UNUSED
-# endif
-#endif
-
 #if !HAVE_ASPRINTF
 #include <stdarg.h>
 
@@ -81,15 +73,15 @@ const char *argp_program_version = "argp-test 1.0";
 
 struct argp_option sub_options[] =
 {
-  {"subopt1",       's',     0,  0, "Nested option 1"},
-  {"subopt2",       'S',     0,  0, "Nested option 2"},
+  {"subopt1",       's',     0,  0, "Nested option 1", 0},
+  {"subopt2",       'S',     0,  0, "Nested option 2", 0},
 
   { 0, 0, 0, 0, "Some more nested options:", 10},
-  {"subopt3",       'p',     0,  0, "Nested option 3"},
+  {"subopt3",       'p',     0,  0, "Nested option 3", 0},
 
   {"subopt4",       'q',     0,  0, "Nested option 4", 1},
 
-  {0}
+  {0, 0, 0, 0, 0, 0}
 };
 
 static const char sub_args_doc[] = "STRING...\n-";
@@ -128,7 +120,7 @@ is preceded by a blank line).");
 }
 
 static struct argp sub_argp = {
-  sub_options, sub_parse_opt, sub_args_doc, sub_doc, 0, sub_help_filter
+  sub_options, sub_parse_opt, sub_args_doc, sub_doc, 0, sub_help_filter, 0
 };
 
 /* Structure used to communicate with the parsing functions.  */
@@ -143,26 +135,26 @@ struct params
 
 struct argp_option options[] =
 {
-  {"pid",       'p',     "PID", 0, "List the process PID"},
-  {"pgrp",      OPT_PGRP,"PGRP",0, "List processes in the process group PGRP"},
-  {"no-parent", 'P',	 0,     0, "Include processes without parents"},
-  {0,           'x',     0,     OPTION_ALIAS},
+  {"pid",       'p',     "PID", 0, "List the process PID", 0},
+  {"pgrp",      OPT_PGRP,"PGRP",0, "List processes in the process group PGRP", 0},
+  {"no-parent", 'P',	 0,     0, "Include processes without parents", 0},
+  {0,           'x',     0,     OPTION_ALIAS, NULL, 0},
   {"all-fields",'Q',     0,     0, "Don't elide unusable fields (normally"
 				   " if there's some reason ps can't"
 				   " print a field for any process, it's"
-				   " removed from the output entirely)" },
-  {"reverse",   'r',    0,      0, "Reverse the order of any sort"},
-  {"gratuitously-long-reverse-option", 0, 0, OPTION_ALIAS},
+				   " removed from the output entirely)", 0},
+  {"reverse",   'r',    0,      0, "Reverse the order of any sort", 0},
+  {"gratuitously-long-reverse-option", 0, 0, OPTION_ALIAS, NULL, 0},
   {"session",  OPT_SESS,"SID",  OPTION_ARG_OPTIONAL,
 				   "Add the processes from the session"
 				   " SID (which defaults to the sid of"
-				   " the current process)" },
+				   " the current process)", 0},
 
-  {0,0,0,0, "Here are some more options:"},
-  {"foonly", 'f', "ZOT", OPTION_ARG_OPTIONAL, "Glork a foonly"},
-  {"zaza", 'z', 0, 0, "Snit a zar"},
+  {0,0,0,0, "Here are some more options:", 0},
+  {"foonly", 'f', "ZOT", OPTION_ARG_OPTIONAL, "Glork a foonly", 0},
+  {"zaza", 'z', 0, 0, "Snit a zar", 0},
 
-  {0}
+  {0, 0, 0, 0, 0, 0}
 };
 
 static const char args_doc[] = "STRING";
@@ -242,9 +234,12 @@ help_filter (int key, const char *text, void *input)
   return new_text;
 }
 
-static struct argp_child argp_children[] = { { &sub_argp }, { 0 } };
+static struct argp_child argp_children[] = {
+  { &sub_argp, 0, 0, 0 }, { 0, 0, 0, 0 }
+};
+
 static struct argp argp = {
-  options, parse_opt, args_doc, doc, argp_children, help_filter
+  options, parse_opt, args_doc, doc, argp_children, help_filter, 0
 };
 
 int

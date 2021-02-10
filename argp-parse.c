@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing
-   Copyright (C) 1995, 96, 97, 98, 99, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1995, 96, 97, 98, 99, 2000,2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -31,14 +31,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <assert.h>
-
-#ifndef UNUSED
-# if __GNUC__ >= 2
-#  define UNUSED __attribute__ ((__unused__))
-# else
-#  define UNUSED
-# endif
-#endif
 
 #ifndef _
 /* This is for other GNU distributions with internationalized messages.
@@ -93,11 +85,12 @@ volatile int _argp_hang;
 static const struct argp_option argp_default_options[] =
 {
   {"help",	  '?',    	0, 0,  N_("Give this help list"), -1},
-  {"usage",	  OPT_USAGE,	0, 0,  N_("Give a short usage message")},
-  {"program-name",OPT_PROGNAME,"NAME", OPTION_HIDDEN, N_("Set the program name")},
+  {"usage",	  OPT_USAGE,	0, 0,  N_("Give a short usage message"), 0 },
+  {"program-name",OPT_PROGNAME,"NAME", OPTION_HIDDEN,
+     N_("Set the program name"), 0},
   {"HANG",	  OPT_HANG,    "SECS", OPTION_ARG_OPTIONAL | OPTION_HIDDEN,
-     N_("Hang for SECS seconds (default 3600)")},
-  {0, 0}
+     N_("Hang for SECS seconds (default 3600)"), 0 },
+  {0, 0, 0, 0, 0, 0}
 };
 
 static error_t
@@ -114,7 +107,7 @@ argp_default_parser (int key, char *arg, struct argp_state *state)
       break;
 
     case OPT_PROGNAME:		/* Set the program name.  */
-#if HAVE_PROGRAM_INVOCATION_NAME
+#if HAVE_DECL_PROGRAM_INVOCATION_NAME
       program_invocation_name = arg;
 #endif
       /* [Note that some systems only have PROGRAM_INVOCATION_SHORT_NAME (aka
@@ -125,7 +118,7 @@ argp_default_parser (int key, char *arg, struct argp_state *state)
 
       state->name = __argp_basename(arg);
       
-#if HAVE_PROGRAM_INVOCATION_SHORT_NAME
+#if HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
       program_invocation_short_name = state->name;
 #endif
 
@@ -157,7 +150,7 @@ static const struct argp argp_default_argp =
 static const struct argp_option argp_version_options[] =
 {
   {"version",	  'V',    	0, 0,  N_("Print program version"), -1},
-  {0, 0}
+  {0, 0, 0, 0, 0, 0 }
 };
 
 static error_t
@@ -1021,6 +1014,8 @@ parser_parse_next (struct parser *parser, int *arg_ebadkey)
 	  *arg_ebadkey = 1;
 	  if (parser->first_nonopt != parser->last_nonopt)
 	    {
+	      exchange(parser);
+	      
 	      /* Start processing the arguments we skipped previously. */
 	      parser->state.next = parser->first_nonopt;
 	      

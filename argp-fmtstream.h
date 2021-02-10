@@ -1,5 +1,5 @@
 /* Word-wrapping and line-truncating streams.
-   Copyright (C) 1997 Free Software Foundation, Inc.
+   Copyright (C) 1997, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -26,27 +26,26 @@
 #ifndef _ARGP_FMTSTREAM_H
 #define _ARGP_FMTSTREAM_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-#if !_LIBC
-# if ! (defined (HAVE_FLOCKFILE) && defined(HAVE_PUTC_UNLOCKED) \
+#if _LIBC || (defined (HAVE_FLOCKFILE) && defined(HAVE_PUTC_UNLOCKED) \
      && defined (HAVE_FPUTS_UNLOCKED) && defined (HAVE_FWRITE_UNLOCKED) )
-
-/* Don't use stdio locking */
-
-#  define flockfile(f)
-#  define funlockfile(f)
-#  define putc_unlocked(c, f) putc((c), (f))
-#  define fputs_unlocked(s, f) fputs((s), (f))
-#  define fwrite_unlocked(b, s, n, f) fwrite((b), (s), (n), (f))
-# endif /* No thread safe i/o */
-#endif /* !_LIBC */
+/* Use locking funxtions */
+# define FLOCKFILE(f) flockfile(f)
+# define FUNLOCKFILE(f) funlockfile(f)
+# define PUTC_UNLOCKED(c, f) putc_unlocked((c), (f))
+# define FPUTS_UNLOCKED(s, f) fputs_unlocked((s), (f))
+# define FWRITE_UNLOCKED(b, s, n, f) fwrite_unlocked((b), (s), (n), (f))
+#else
+/* Disable stdio locking */
+# define FLOCKFILE(f)
+# define FUNLOCKFILE(f)
+# define PUTC_UNLOCKED(c, f) putc((c), (f))
+# define FPUTS_UNLOCKED(s, f) fputs((s), (f))
+# define FWRITE_UNLOCKED(b, s, n, f) fwrite((b), (s), (n), (f))
+#endif /* No thread safe i/o */
 
 #if    (_LIBC - 0 && !defined (USE_IN_LIBIO)) \
     || (defined (__GNU_LIBRARY__) && defined (HAVE_LINEWRAP_H))
@@ -98,16 +97,6 @@ typedef FILE *argp_fmtstream_t;
 
 #ifndef __const
 #define __const const
-#endif
-
-/* FIXME: We could use a configure test to check for __attribute__,
- * just like lsh does. */
-#ifndef PRINTF_STYLE
-# if __GNUC__ >= 2
-#  define PRINTF_STYLE(f, a) __attribute__ ((__format__ (__printf__, f, a)))
-# else
-#  define PRINTF_STYLE(f, a)
-# endif
 #endif
 
 

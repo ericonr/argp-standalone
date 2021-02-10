@@ -1,5 +1,5 @@
 /* Word-wrapping and line-truncating streams
-   Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -94,7 +94,7 @@ __argp_fmtstream_free (argp_fmtstream_t fs)
 {
   __argp_fmtstream_update (fs);
   if (fs->p > fs->buf)
-    fwrite_unlocked (fs->buf, 1, fs->p - fs->buf, fs->stream);
+    FWRITE_UNLOCKED (fs->buf, 1, fs->p - fs->buf, fs->stream);
   free (fs->buf);
   free (fs);
 }
@@ -134,7 +134,7 @@ __argp_fmtstream_update (argp_fmtstream_t fs)
 	      /* No buffer space for spaces.  Must flush.  */
 	      size_t i;
 	      for (i = 0; i < pad; i++)
-		putc_unlocked (' ', fs->stream);
+		PUTC_UNLOCKED (' ', fs->stream);
 	    }
 	  fs->point_col = pad;
 	}
@@ -268,8 +268,8 @@ __argp_fmtstream_update (argp_fmtstream_t fs)
 		/* Output the first line so we can use the space.  */
 		{
 		  if (nl > fs->buf)
-		    fwrite_unlocked (fs->buf, 1, nl - fs->buf, fs->stream);
-		  putc_unlocked ('\n', fs->stream);
+		    FWRITE_UNLOCKED (fs->buf, 1, nl - fs->buf, fs->stream);
+		  PUTC_UNLOCKED ('\n', fs->stream);
 		  len += buf - fs->buf;
 		  nl = buf = fs->buf;
 		}
@@ -286,7 +286,7 @@ __argp_fmtstream_update (argp_fmtstream_t fs)
 	      *nl++ = ' ';
 	  else
 	    for (i = 0; i < fs->wmargin; ++i)
-	      putc_unlocked (' ', fs->stream);
+	      PUTC_UNLOCKED (' ', fs->stream);
 
 	  /* Copy the tail of the original buffer into the current buffer
 	     position.  */
@@ -323,7 +323,7 @@ __argp_fmtstream_ensure (struct argp_fmtstream *fs, size_t amount)
       /* Flush FS's buffer.  */
       __argp_fmtstream_update (fs);
 
-      wrote = fwrite_unlocked (fs->buf, 1, fs->p - fs->buf, fs->stream);
+      wrote = FWRITE_UNLOCKED (fs->buf, 1, fs->p - fs->buf, fs->stream);
       if (wrote == fs->p - fs->buf)
 	{
 	  fs->p = fs->buf;

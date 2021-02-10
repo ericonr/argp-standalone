@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1995, 96, 97, 98, 99, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -40,8 +40,9 @@ typedef int error_t;
 # define __error_t_defined
 #endif
 
-/* FIXME: We could use a configure test to check for __attribute__,
- * just like lsh does. */
+/* NOTE: We can't use the autoconf tests, since this is supposed to be
+   an installed header file and argp's config.h is of course not
+   installed. */
 #ifndef PRINTF_STYLE
 # if __GNUC__ >= 2
 #  define PRINTF_STYLE(f, a) __attribute__ ((__format__ (__printf__, f, a)))
