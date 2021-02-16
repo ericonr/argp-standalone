@@ -15,3 +15,9 @@ changes from the glibc version in order to make updating easier.
 
 It is my expectation that this library will be useful to others. Feel free to
 open an issue or make a PR.
+
+## License
+
+Since this repository is based on GNU C Library source code and changes from
+Niels and collaborators, it is licensed primarily under the GNU Lesser General
+Public License, version 2.1 or later (SPDX: `LGPL-2.1-or-later`).
