@@ -56,9 +56,9 @@ char *alloca ();
 
 #ifndef _
 /* This is for other GNU distributions with internationalized messages.  */
-# if defined HAVE_LIBINTL_H || defined _LIBC
+# if defined HAVE_LIBINTL_H || 0
 #  include <libintl.h>
-#  ifdef _LIBC
+#  if 0
 #   undef dgettext
 #   define dgettext(domain, msgid) \
   __dcgettext (domain, msgid, LC_MESSAGES)
@@ -67,6 +67,9 @@ char *alloca ();
 #  define dgettext(domain, msgid) (msgid)
 # endif
 #endif
+
+/* can't use macro due to double evaluation */
+static char * dgettext_safe(const char *d, const char *m) { return m ? dgettext(d, m) : NULL; }
 
 #include <argp.h>
 #include <argp-fmtstream.h>
@@ -996,7 +999,7 @@ static void
 print_header (const char *str, const struct argp *argp,
 	      struct pentry_state *pest)
 {
-  const char *tstr = dgettext (argp->argp_domain, str);
+  const char *tstr = dgettext_safe (argp->argp_domain, str);
   const char *fstr = filter_doc (tstr, ARGP_KEY_HELP_HEADER, argp, pest->state);
 
   if (fstr)
@@ -1150,7 +1153,7 @@ hol_entry_help (struct hol_entry *entry, const struct argp_state *state,
     }
   else
     {
-      const char *tstr = real->doc ? dgettext (state == NULL ? NULL
+      const char *tstr = real->doc ? dgettext_safe (state == NULL ? NULL
 					       : state->root_argp->argp_domain,
 					       real->doc) : 0;
       const char *fstr = filter_doc (tstr, real->key, entry->argp, state);
@@ -1387,7 +1390,7 @@ argp_args_usage (const struct argp *argp, const struct argp_state *state,
   char *our_level = *levels;
   int multiple = 0;
   const struct argp_child *child = argp->children;
-  const char *tdoc = dgettext (argp->argp_domain, argp->args_doc), *nl = 0;
+  const char *tdoc = dgettext_safe (argp->argp_domain, argp->args_doc), *nl = 0;
   const char *fdoc = filter_doc (tdoc, ARGP_KEY_HELP_ARGS_DOC, argp, state);
 
   if (fdoc)
@@ -1452,7 +1455,7 @@ argp_doc (const struct argp *argp, const struct argp_state *state,
   void *input = 0;
   int anything = 0;
   size_t inp_text_limit = 0;
-  const char *doc = dgettext (argp->argp_domain, argp->doc);
+  const char *doc = dgettext_safe (argp->argp_domain, argp->doc);
   const struct argp_child *child = argp->children;
 
   if (doc)
