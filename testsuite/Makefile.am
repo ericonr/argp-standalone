@@ -10,6 +10,6 @@ LDADD = ../libargp.a
 EXTRA_DIST = $(TS_SH) run-tests
 CLEANFILES = test.out
 
-.PHONY: check 
+.PHONY: check
 check: $(TS_ALL) $(srcdir)/run-tests
 	srcdir="$(srcdir)" $(srcdir)/run-tests $(TS_ALL)

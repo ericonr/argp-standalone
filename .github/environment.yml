@@ -1,0 +1,6 @@
+name: argp_build_env
+channels:
+  - conda-forge
+dependencies:
+  - meson
+  - c-compiler

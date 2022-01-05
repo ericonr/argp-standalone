@@ -66,4 +66,3 @@ echo "$dashes"
 env_program `find_program teardown-env`
 
 [ "$failed" -eq 0 ]
-

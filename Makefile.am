@@ -29,7 +29,7 @@ noinst_HEADERS = argp.h argp-fmtstream.h argp-namefrob.h # argp-comp.h
 
 EXTRA_DIST = mempcpy.c strchrnul.c strndup.c Versions
 
-# Leaves out argp-fs-xinl.c and argp-xinl.c 
+# Leaves out argp-fs-xinl.c and argp-xinl.c
 libargp_a_SOURCES = argp-ba.c argp-eexst.c argp-fmtstream.c \
 		    argp-help.c argp-parse.c argp-pv.c \
 		    argp-pvh.c
@@ -37,4 +37,3 @@ libargp_a_SOURCES = argp-ba.c argp-eexst.c argp-fmtstream.c \
 libargp_a_LIBADD = $(LIBOBJS)
 
 argp_test_LDADD = libargp.a
-
