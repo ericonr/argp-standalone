@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest] # , macos-latest]
+        os: [ubuntu-latest, macos-latest]
 
     name: Compile and Run Tests
     steps:
@@ -38,24 +38,3 @@ jobs:
         run: |
           cd testsuite
           ./run-tests
-
-      # - name: Compile argp
-      #   shell: bash -l {0}
-      #   if: runner.os != 'Windows'
-      #   run: |
-      #     meson builddir
-      #     cd builddir
-      #     ninja
-      # - name: Run argp tests
-      #   shell: bash -l {0}
-      #   if: runner.os != 'Windows'
-      #   run: |
-      #     cd builddir
-      #     ninja test
-      # - name: Compile argp
-      #   shell: cmd /C CALL {0}
-      #   if: runner.os == 'Windows'
-      #   run: |
-      #     CALL micromamba activate argp_build_env
-      #     meson setup builddir
-      #     meson compile -C builddir
