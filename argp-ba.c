@@ -22,4 +22,4 @@
    the ARGP_HELP_BUG_ADDR flag is set (as it is by various standard help
    messages), embedded in a sentence that says something like `Report bugs to
    ADDR.'.  */
-const char* argp_program_bug_address;
+const char *argp_program_bug_address;
