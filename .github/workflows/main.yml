@@ -23,6 +23,9 @@ jobs:
       - name: Configure argp
         shell: bash -l {0}
         run: |
+          aclocal
+          autoheader
+          autoconf
           automake --add-missing
           autoreconf
           ./configure
