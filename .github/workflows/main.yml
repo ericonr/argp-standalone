@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] # , macos-latest]
 
     name: Compile and Run Tests
     steps:
@@ -23,8 +23,8 @@ jobs:
       - name: Configure argp
         shell: bash -l {0}
         run: |
-          autoreconf
           automake --add-missing
+          autoreconf
           ./configure
       - name: Build argp
         shell: bash -l {0}
