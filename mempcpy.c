@@ -2,7 +2,7 @@
  *
  */
 
-/* Written by Niels Möller <nisse@lysator.liu.se>
+/* Written by Niels Moeller <nisse@lysator.liu.se>
  *
  * This file is hereby placed in the public domain.
  */
