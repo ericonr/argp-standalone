@@ -1,3 +1,9 @@
+2021-02-16  Érico Nogueira  <ericonr@disroot.org>
+
+	* configure.ac: Check for <libintl.h> header.
+	* argp-help.c: Add dgettext_safe wrapper.
+	* configure.ac: Bumped version to 1.4.1.
+
 2021-02-10  Érico Nogueira  <ericonr@disroot.org>
 
 	* configure.ac: Bumped version to 1.4.0.
