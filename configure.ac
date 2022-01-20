@@ -68,8 +68,8 @@ AC_DEFUN([ARGP_CHECK_FUNC],
 # AC_CHECK_FUNCS doesn't work well.
 ARGP_CHECK_FUNC([#include <stdio.h>], [putc_unlocked('x', stdout)])
 
-AC_CHECK_FUNCS(flockfile)
-AC_CHECK_FUNCS(fputs_unlocked fwrite_unlocked)
+AC_CHECK_DECL(flockfile)
+AC_CHECK_DECLS([fputs_unlocked, fwrite_unlocked])
 
 # Used only by argp-test.c, so don't use AC_REPLACE_FUNCS.
 AC_CHECK_FUNCS(strdup asprintf)

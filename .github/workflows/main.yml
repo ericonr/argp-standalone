@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: [master, ci]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    name: Compile and Run Tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: install mamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: .github/environment.yml
+      - name: Configure argp
+        shell: bash -l {0}
+        run: |
+          aclocal
+          autoheader
+          autoconf
+          automake --add-missing
+          autoreconf
+          ./configure
+      - name: Build argp
+        shell: bash -l {0}
+        run: |
+          make
+      - name: Run argp tests
+        shell: bash -l {0}
+        run: |
+          cd testsuite
+          ./run-tests
