@@ -397,14 +397,14 @@ struct argp_state
    routine returned a non-zero value, it is returned; otherwise 0 is
    returned.  This function may also call exit unless the ARGP_NO_HELP flag
    is set.  INPUT is a pointer to a value to be passed in to the parser.  */
-extern error_t argp_parse (const struct argp *__restrict __argp,
-			   int __argc, char **__restrict __argv,
-			   unsigned __flags, int *__restrict __arg_index,
-			   void *__restrict __input);
-extern error_t __argp_parse (const struct argp *__restrict __argp,
-			     int __argc, char **__restrict __argv,
-			     unsigned __flags, int *__restrict __arg_index,
-			     void *__restrict __input);
+extern error_t argp_parse (const struct argp *__restrict argp,
+			   int argc, char **__restrict argv,
+			   unsigned flags, int *__restrict arg_index,
+			   void *__restrict input);
+extern error_t __argp_parse (const struct argp *__restrict argp,
+			     int argc, char **__restrict argv,
+			     unsigned flags, int *__restrict arg_index,
+			     void *__restrict input);
 
 /* Global variables.  */
 
