@@ -17,12 +17,14 @@ conf_data = configuration_data()
 
 cc = meson.get_compiler('c')
 
-conf_data.set10('HAVE_LIMITS_H', cc.check_header('limits.h'))
-conf_data.set10('HAVE_MALLOC_H', cc.check_header('malloc.h'))
-conf_data.set10('HAVE_UNISTD_H', cc.check_header('unistd.h'))
 conf_data.set10('HAVE_CONFIG_H', true)
-conf_data.set10('HAVE_LIBINTL_H', cc.check_header('libintl.h'))
 conf_data.set10('HAVE_ALLOCA_H', cc.check_header('alloca.h'))
+
+conf_data.set('HAVE_LIMITS_H', cc.check_header('limits.h'))
+conf_data.set('HAVE_MALLOC_H', cc.check_header('malloc.h'))
+conf_data.set('HAVE_UNISTD_H', cc.check_header('unistd.h'))
+conf_data.set('HAVE_LIBINTL_H', cc.check_header('libintl.h'))
+
 # conf_data.set10('_LIBC', true)
 
 conf_data.set10('HAVE_DECL_FLOCKFILE', cc.has_function('flockfile'))

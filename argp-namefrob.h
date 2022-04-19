@@ -134,6 +134,15 @@
 # define putchar_unlocked(x) putchar (x)
 # endif
 
+#if defined(HAVE_STRCHRNUL) && !HAVE_STRCHRNUL
+char *strchrnul(const char *s, int c);
+#endif
+
+#if defined(HAVE_MEMPCPY) && !HAVE_MEMPCPY
+void *
+mempcpy (void *to, const void *from, size_t size);
+#endif
+
 extern char *__argp_basename (char *name);
 
 #endif /* !_LIBC */
