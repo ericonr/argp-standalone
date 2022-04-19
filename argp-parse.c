@@ -46,7 +46,7 @@ alloca();
 
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_UNISTD_H
+#if defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
 #include <limits.h>
@@ -55,7 +55,7 @@ alloca();
 #ifndef _
 /* This is for other GNU distributions with internationalized messages.
    When compiling libc, the _ macro is predefined.  */
-#if HAVE_LIBINTL_H
+#if defined(HAVE_LIBINTL_H)
 #include <libintl.h>
 #ifdef _LIBC
 #undef dgettext
