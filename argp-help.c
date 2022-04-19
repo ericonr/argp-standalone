@@ -29,15 +29,13 @@
 #ifndef __GNUC__
 #if HAVE_ALLOCA_H || 0
 #include <alloca.h>
-#else
-#ifdef _AIX
+#elif defined(_WIN32)
+#define alloca _alloca
+#elif defined(_AIX)
 #pragma alloca
-#else
-#ifndef alloca /* predefined by HP cc +Olibcalls */
+#elif !defined(alloca)
 char*
 alloca();
-#endif
-#endif
 #endif
 #endif
 
@@ -67,6 +65,23 @@ alloca();
 #define dgettext(domain, msgid) (msgid)
 #endif
 #endif
+
+#if !_LIBC
+#if !HAVE_STRNDUP
+char*
+strndup(const char* s, size_t size);
+#endif /* !HAVE_STRNDUP */
+
+#if !HAVE_MEMPCPY
+void*
+mempcpy(void* to, const void* from, size_t size);
+#endif /* !HAVE_MEMPCPY */
+
+#if !HAVE_STRCHRNUL
+char*
+strchrnul(const char* s, int c);
+#endif /* !HAVE_STRCHRNUL */
+#endif /* !_LIBC */
 
 /* can't use macro due to double evaluation */
 static char*
@@ -568,7 +583,7 @@ hol_entry_short_iterate(const struct hol_entry* entry,
     return val;
 }
 
-static inline int __attribute__((always_inline))
+static inline int
 hol_entry_long_iterate(const struct hol_entry* entry,
                        int (*func)(const struct argp_option* opt,
                                    const struct argp_option* real,
@@ -1686,7 +1701,6 @@ __argp_help(const struct argp* argp, FILE* stream, unsigned flags, char* name)
 weak_alias(__argp_help, argp_help)
 #endif
 
-#if !HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
     char* __argp_basename(char* name)
 {
     char* short_name = strrchr(name, '/');
@@ -1694,23 +1708,24 @@ weak_alias(__argp_help, argp_help)
 }
 
 char*
-__argp_short_program_name(void)
+__argp_short_program_name(const struct argp_state* state)
 {
+    if (state)
+        return state->name;
 #if HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
     return program_invocation_short_name;
 #elif HAVE_DECL_PROGRAM_INVOCATION_NAME
     return __argp_basename(program_invocation_name);
-#else
-    /* FIXME: What now? Miles suggests that it is better to use NULL,
-       but currently the value is passed on directly to fputs_unlocked,
-       so that requires more changes. */
+#else /* !HAVE_DECL_PROGRAM_INVOCATION_NAME */
+        /* FIXME: What now? Miles suggests that it is better to use NULL,
+           but currently the value is passed on directly to fputs_unlocked,
+           so that requires more changes. */
 #if __GNUC__
 #warning No reasonable value to return
-#endif /* __GNUC__ */
     return "";
-#endif
+#endif /* __GNUC__ */
+#endif /* !HAVE_DECL_PROGRAM_INVOCATION_NAME */
 }
-#endif
 
 /* Output, if appropriate, a usage message for STATE to STREAM.  FLAGS are
    from the set ARGP_HELP_*.  */
@@ -1726,7 +1741,7 @@ __argp_state_help(const struct argp_state* state, FILE* stream, unsigned flags)
               state,
               stream,
               flags,
-              state ? state->name : __argp_short_program_name());
+              state ? state->name : __argp_short_program_name(state));
 
         if (!state || !(state->flags & ARGP_NO_EXIT))
         {
@@ -1766,11 +1781,11 @@ weak_alias(__argp_state_help, argp_state_help)
 	    buf = NULL;
 
 	  __fxprintf (stream, "%s: %s\n",
-		      state ? state->name : __argp_short_program_name (), buf);
+		      state ? state->name : __argp_short_program_name (state), buf);
 
 	  free (buf);
 #else
-            fputs_unlocked(state ? state->name : __argp_short_program_name(), stream);
+            fputs_unlocked(state ? state->name : __argp_short_program_name(state), stream);
             putc_unlocked(':', stream);
             putc_unlocked(' ', stream);
 
@@ -1826,9 +1841,9 @@ weak_alias(__argp_error, argp_error)
 
 #if 0
 	  __fxprintf (stream, "%s",
-		      state ? state->name : __argp_short_program_name ());
+		      state ? state->name : __argp_short_program_name (state));
 #else
-            fputs_unlocked(state ? state->name : __argp_short_program_name(), stream);
+            fputs_unlocked(state ? state->name : __argp_short_program_name(state), stream);
 #endif
 
             if (fmt)

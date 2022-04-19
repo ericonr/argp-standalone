@@ -1,44 +1,44 @@
-/* Hierarchical argument parsing, layered over getopt.
-   Copyright (C) 1995-2021 Free Software Foundation, Inc.
+/* Hierarchial argument parsing.
+   Copyright (C) 1995, 96, 97, 98, 99, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
+   Library General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
 #ifndef _ARGP_H
 #define _ARGP_H
 
 #include <stdio.h>
 #include <ctype.h>
-#include <getopt.h>
-#include <limits.h>
+
+#define __need_error_t
 #include <errno.h>
 
-/* From glibc's <sys/cdef.h> */
-#if (defined __cplusplus || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L))
-#define __inline inline
-#else
-#define __inline /* No inline functions.  */
+#ifndef __THROW
+#define __THROW
 #endif
 
-#define __THROW
-#define __THROWNL
-#define __NTH(fct) fct
+#ifndef __const
+#define __const const
+#endif
 
-/* FIXME: conflict? */
+#ifndef __error_t_defined
 typedef int error_t;
+#define __error_t_defined
+#endif
 
 /* FIXME: What's the right way to check for __restrict? Sun's cc seems
    not to have it. Perhaps it's easiest to just delete the use of
@@ -65,6 +65,7 @@ typedef int error_t;
 extern "C"
 {
 #endif
+
     /* A description of a particular option.  A pointer to an array of
        these is passed in the OPTIONS field of an argp structure.  Each option
        entry can correspond to one long option and/or one short option; more
@@ -74,7 +75,7 @@ extern "C"
     {
         /* The long option name.  For more than one name for the same option, you
            can use following options with the OPTION_ALIAS flag set.  */
-        const char* name;
+        __const char* name;
 
         /* What key is returned for this option.  If > 0 and printable, then it's
            also accepted as a short option.  */
@@ -82,7 +83,7 @@ extern "C"
 
         /* If non-NULL, this is the name of the argument associated with this
            option, which is required unless the OPTION_ARG_OPTIONAL flag is set. */
-        const char* arg;
+        __const char* arg;
 
         /* OPTION_ flags.  */
         int flags;
@@ -91,7 +92,7 @@ extern "C"
            will be printed outdented from the normal option column, making it
            useful as a group header (it will be the first thing printed in its
            group); in this usage, it's conventional to end the string with a `:'.  */
-        const char* doc;
+        __const char* doc;
 
         /* The group this option is in.  In a long help message, options are sorted
            alphabetically within each group, and the groups presented in the order
@@ -120,7 +121,7 @@ extern "C"
    is set, then the option NAME field is displayed unmodified (e.g., no `--'
    prefix is added) at the left-margin (where a *short* option would normally
    be displayed), and the documentation string in the normal place.  For
-   purposes of sorting, any leading whitespace and punctuation is ignored,
+   purposes of sorting, any leading whitespace and puncuation is ignored,
    except that if the first non-whitespace character is not `-', this entry
    is displayed after all options (and OPTION_DOC entries with a leading `-')
    in the same group.  */
@@ -140,7 +141,7 @@ extern "C"
     struct argp_child; /* " */
 
     /* The type of a pointer to an argp parsing function.  */
-    typedef error_t (*argp_parser_t)(int __key, char* __arg, struct argp_state* __state);
+    typedef error_t (*argp_parser_t)(int key, char* arg, struct argp_state* state);
 
 /* What to return for unrecognized keys.  For special ARGP_KEY_ keys, such
    returns will simply be ignored.  For user keys, this error will be turned
@@ -212,7 +213,7 @@ extern "C"
     {
         /* An array of argp_option structures, terminated by an entry with both
            NAME and KEY having a value of 0.  */
-        const struct argp_option* options;
+        __const struct argp_option* options;
 
         /* What to do with an option from this structure.  KEY is the key
            associated with the option, and ARG is any associated argument (NULL if
@@ -228,12 +229,12 @@ extern "C"
            contains newlines, the strings separated by them are considered
            alternative usage patterns, and printed on separate lines (lines after
            the first are prefix by `  or: ' instead of `Usage:').  */
-        const char* args_doc;
+        __const char* args_doc;
 
         /* If non-NULL, a string containing extra text to be printed before and
            after the options in a long help message (separated by a vertical tab
            `\v' character).  */
-        const char* doc;
+        __const char* doc;
 
         /* A vector of argp_children structures, terminated by a member with a 0
            argp field, pointing to child argps should be parsed with this one.  Any
@@ -241,7 +242,7 @@ extern "C"
            CHILDREN list.  This field is useful if you use libraries that supply
            their own argp structure, which you want to use in conjunction with your
            own.  */
-        const struct argp_child* children;
+        __const struct argp_child* children;
 
         /* If non-zero, this should be a function to filter the output of help
            messages.  KEY is either a key from an option, in which case TEXT is
@@ -253,7 +254,7 @@ extern "C"
            has been done, so if any of the replacement text also needs translation,
            that should be done by the filter function.  INPUT is either the input
            supplied to argp_parse, or NULL, if argp_help was called directly.  */
-        char* (*help_filter)(int __key, const char* __text, void* __input);
+        char* (*help_filter)(int __key, __const char* __text, void* __input);
 
         /* If non-zero the strings used in the argp library are translated using
            the domain described by this string.  Otherwise the currently installed
@@ -262,12 +263,12 @@ extern "C"
     };
 
 /* Possible KEY arguments to a help filter function.  */
-#define ARGP_KEY_HELP_PRE_DOC 0x2000001  /* Help text preceding options. */
+#define ARGP_KEY_HELP_PRE_DOC 0x2000001  /* Help text preceeding options. */
 #define ARGP_KEY_HELP_POST_DOC 0x2000002 /* Help text following options. */
 #define ARGP_KEY_HELP_HEADER 0x2000003   /* Option header string. */
 #define ARGP_KEY_HELP_EXTRA                                                                        \
     0x2000004 /* After all other documentation;                                                    \
- TEXT is NULL for this key.  */
+TEXT is NULL for this key.  */
 /* Explanatory note emitted when duplicate option arguments have been
    suppressed.  */
 #define ARGP_KEY_HELP_DUP_ARGS_NOTE 0x2000005
@@ -278,7 +279,7 @@ extern "C"
     struct argp_child
     {
         /* The child parser.  */
-        const struct argp* argp;
+        __const struct argp* argp;
 
         /* Flags for this child.  */
         int flags;
@@ -287,7 +288,7 @@ extern "C"
            child options.  As a side-effect, a non-zero value forces the child
            options to be grouped together; to achieve this effect without actually
            printing a header string, use a value of "".  */
-        const char* header;
+        __const char* header;
 
         /* Where to group the child options relative to the other (`consolidated')
            options in the parent argp; the values are the same as the GROUP field
@@ -303,7 +304,7 @@ extern "C"
     struct argp_state
     {
         /* The top level ARGP being parsed.  */
-        const struct argp* root_argp;
+        __const struct argp* root_argp;
 
         /* The argument vector being parsed.  May be modified.  */
         int argc;
@@ -397,18 +398,41 @@ extern "C"
        routine returned a non-zero value, it is returned; otherwise 0 is
        returned.  This function may also call exit unless the ARGP_NO_HELP flag
        is set.  INPUT is a pointer to a value to be passed in to the parser.  */
-    extern error_t argp_parse(const struct argp* __restrict __argp,
-                              int __argc,
-                              char** __restrict __argv,
-                              unsigned __flags,
-                              int* __restrict __arg_index,
-                              void* __restrict __input);
-    extern error_t __argp_parse(const struct argp* __restrict __argp,
-                                int __argc,
-                                char** __restrict __argv,
-                                unsigned __flags,
-                                int* __restrict __arg_index,
-                                void* __restrict __input);
+
+#ifdef _WIN32
+    extern error_t argp_parse(const struct argp* argp,
+                              int argc,
+                              char** argv,
+                              unsigned flags,
+
+                              int* end_index,
+                              void* input) __THROW;
+
+    extern error_t __argp_parse(const struct argp* argp,
+                                int argc,
+                                char** argv,
+                                unsigned flags,
+
+                                int* end_index,
+                                void* input) __THROW;
+#else
+
+extern error_t
+argp_parse(__const struct argp* __restrict __argp,
+           int __argc,
+           char** __restrict __argv,
+           unsigned __flags,
+           int* __restrict __arg_index,
+           void* __restrict __input) __THROW;
+
+extern error_t
+__argp_parse(__const struct argp* __restrict __argp,
+             int __argc,
+             char** __restrict __argv,
+             unsigned __flags,
+             int* __restrict __arg_index,
+             void* __restrict __input) __THROW;
+#endif
 
     /* Global variables.  */
 
@@ -416,7 +440,7 @@ extern "C"
        option --version is added (unless the ARGP_NO_HELP flag is used), which
        will print this string followed by a newline and exit (unless the
        ARGP_NO_EXIT flag is used).  Overridden by ARGP_PROGRAM_VERSION_HOOK.  */
-    extern const char* argp_program_version;
+    extern __const char* argp_program_version;
 
     /* If defined or set by the user program to a non-zero value, then a default
        option --version is added (unless the ARGP_NO_HELP flag is used), which
@@ -431,7 +455,7 @@ extern "C"
        argp_help if the ARGP_HELP_BUG_ADDR flag is set (as it is by various
        standard help messages), embedded in a sentence that says something like
        `Report bugs to ADDR.'.  */
-    extern const char* argp_program_bug_address;
+    extern __const char* argp_program_bug_address;
 
     /* The exit status that argp will use when exiting due to a parsing error.
        If not defined or set by the user program, this defaults to EX_USAGE from
@@ -468,41 +492,45 @@ reflect ARGP_LONG_ONLY mode.  */
 
     /* Output a usage message for ARGP to STREAM.  FLAGS are from the set
        ARGP_HELP_*.  */
-    extern void argp_help(const struct argp* __restrict __argp,
+    extern void argp_help(__const struct argp* __restrict __argp,
                           FILE* __restrict __stream,
                           unsigned __flags,
-                          char* __restrict __name);
-    extern void __argp_help(const struct argp* __restrict __argp,
+                          char* __restrict __name) __THROW;
+    extern void __argp_help(__const struct argp* __restrict __argp,
                             FILE* __restrict __stream,
                             unsigned __flags,
-                            char* __name);
+                            char* __name) __THROW;
 
     /* The following routines are intended to be called from within an argp
        parsing routine (thus taking an argp_state structure as the first
        argument).  They may or may not print an error message and exit, depending
        on the flags in STATE -- in any case, the caller should be prepared for
-       them *not* to exit, and should return an appropriate error after calling
+       them *not* to exit, and should return an appropiate error after calling
        them.  [argp_usage & argp_error should probably be called argp_state_...,
        but they're used often enough that they should be short]  */
 
     /* Output, if appropriate, a usage message for STATE to STREAM.  FLAGS are
        from the set ARGP_HELP_*.  */
-    extern void argp_state_help(const struct argp_state* __restrict __state,
+    extern void argp_state_help(__const struct argp_state* __restrict __state,
                                 FILE* __restrict __stream,
-                                unsigned int __flags);
-    extern void __argp_state_help(const struct argp_state* __restrict __state,
+                                unsigned int __flags) __THROW;
+    extern void __argp_state_help(__const struct argp_state* __restrict __state,
                                   FILE* __restrict __stream,
-                                  unsigned int __flags);
+                                  unsigned int __flags) __THROW;
+
+    /* Possibly output the standard usage message for ARGP to stderr and exit.  */
+    extern void argp_usage(__const struct argp_state* __state) __THROW;
+    extern void __argp_usage(__const struct argp_state* __state) __THROW;
 
     /* If appropriate, print the printf string FMT and following args, preceded
        by the program name and `:', to stderr, and followed by a `Try ... --help'
        message, then exit (1).  */
-    extern void argp_error(const struct argp_state* __restrict __state,
-                           const char* __restrict __fmt,
-                           ...) PRINTF_STYLE(2, 3);
-    extern void __argp_error(const struct argp_state* __restrict __state,
-                             const char* __restrict __fmt,
-                             ...) PRINTF_STYLE(2, 3);
+    extern void argp_error(__const struct argp_state* __restrict __state,
+                           __const char* __restrict __fmt,
+                           ...) __THROW PRINTF_STYLE(2, 3);
+    extern void __argp_error(__const struct argp_state* __restrict __state,
+                             __const char* __restrict __fmt,
+                             ...) __THROW PRINTF_STYLE(2, 3);
 
     /* Similar to the standard gnu error-reporting function error(), but will
        respect the ARGP_NO_EXIT and ARGP_NO_ERRS flags in STATE, and will print
@@ -512,69 +540,81 @@ reflect ARGP_LONG_ONLY mode.  */
        difference between this function and argp_error is that the latter is for
        *parsing errors*, and the former is for other problems that occur during
        parsing but don't reflect a (syntactic) problem with the input.  */
-    extern void argp_failure(const struct argp_state* __restrict __state,
+    extern void argp_failure(__const struct argp_state* __restrict __state,
                              int __status,
                              int __errnum,
-                             const char* __restrict __fmt,
-                             ...) PRINTF_STYLE(4, 5);
-    extern void __argp_failure(const struct argp_state* __restrict __state,
+                             __const char* __restrict __fmt,
+                             ...) __THROW PRINTF_STYLE(4, 5);
+    extern void __argp_failure(__const struct argp_state* __restrict __state,
                                int __status,
                                int __errnum,
-                               const char* __restrict __fmt,
-                               ...) PRINTF_STYLE(4, 5);
-
-    /* Return the input field for ARGP in the parser corresponding to STATE; used
-       by the help routines.  */
-    extern void* _argp_input(const struct argp* __restrict __argp,
-                             const struct argp_state* __restrict __state) __THROW;
-    extern void* __argp_input(const struct argp* __restrict __argp,
-                              const struct argp_state* __restrict __state) __THROW;
-
-#if 1
-
-#if 1
-#define __argp_usage argp_usage
-#define __argp_state_help argp_state_help
-#define __option_is_short _option_is_short
-#define __option_is_end _option_is_end
-#endif
-
-#ifndef ARGP_EI
-#define ARGP_EI static __inline
-#endif
-
-    /* Possibly output the standard usage message for ARGP to stderr and exit.  */
-    ARGP_EI void __argp_usage(const struct argp_state* __state)
-    {
-        __argp_state_help(__state, stderr, ARGP_HELP_STD_USAGE);
-    }
+                               __const char* __restrict __fmt,
+                               ...) __THROW PRINTF_STYLE(4, 5);
 
     /* Returns true if the option OPT is a valid short option.  */
-    ARGP_EI int __NTH(__option_is_short(const struct argp_option* __opt))
-    {
-        if (__opt->flags & OPTION_DOC)
-            return 0;
-        else
-        {
-            int __key = __opt->key;
-            return __key > 0 && __key <= UCHAR_MAX && isprint(__key);
-        }
-    }
+    extern int _option_is_short(__const struct argp_option* __opt) __THROW;
+    extern int __option_is_short(__const struct argp_option* __opt) __THROW;
 
     /* Returns true if the option OPT is in fact the last (unused) entry in an
        options array.  */
-    ARGP_EI int __NTH(__option_is_end(const struct argp_option* __opt))
-    {
-        return !__opt->key && !__opt->name && !__opt->doc && !__opt->group;
-    }
+    extern int _option_is_end(__const struct argp_option* __opt) __THROW;
+    extern int __option_is_end(__const struct argp_option* __opt) __THROW;
 
-#if 1
-#undef __argp_usage
-#undef __argp_state_help
-#undef __option_is_short
-#undef __option_is_end
-#endif
-#endif /* Use extern inlines.  */
+    /* Return the input field for ARGP in the parser corresponding to STATE; used
+       by the help routines.  */
+    extern void* _argp_input(__const struct argp* __restrict __argp,
+                             __const struct argp_state* __restrict __state) __THROW;
+    extern void* __argp_input(__const struct argp* __restrict __argp,
+                              __const struct argp_state* __restrict __state) __THROW;
+
+    /* Used for extracting the program name from argv[0] */
+    extern char* _argp_basename(char* name) __THROW;
+    extern char* __argp_basename(char* name) __THROW;
+
+    /* Getting the program name given an argp state */
+    extern char* _argp_short_program_name(const struct argp_state* state) __THROW;
+    extern char* __argp_short_program_name(const struct argp_state* state) __THROW;
+
+// #ifdef __USE_EXTERN_INLINES
+// #if 1
+// #define __argp_usage argp_usage
+// #define __argp_state_help argp_state_help
+// #define __option_is_short _option_is_short
+// #define __option_is_end _option_is_end
+// #endif
+
+// #ifndef ARGP_EI
+// #define ARGP_EI extern __inline
+// #endif
+
+//     ARGP_EI void __THROW __argp_usage(__const struct argp_state* __state)
+//     {
+//         __argp_state_help(__state, stderr, ARGP_HELP_STD_USAGE);
+//     }
+
+//     ARGP_EI int __THROW __option_is_short(__const struct argp_option* __opt)
+//     {
+//         if (__opt->flags & OPTION_DOC)
+//             return 0;
+//         else
+//         {
+//             int __key = __opt->key;
+//             return __key > 0 && isprint(__key);
+//         }
+//     }
+
+//     ARGP_EI int __THROW __option_is_end(__const struct argp_option* __opt)
+//     {
+//         return !__opt->key && !__opt->name && !__opt->doc && !__opt->group;
+//     }
+
+// #if 1
+// #undef __argp_usage
+// #undef __argp_state_help
+// #undef __option_is_short
+// #undef __option_is_end
+// #endif
+// #endif /* Use extern inlines.  */
 
 #ifdef __cplusplus
 }

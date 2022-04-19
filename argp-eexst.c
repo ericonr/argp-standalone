@@ -21,7 +21,11 @@
 #include <config.h>
 #endif
 
+#ifdef _WIN32
+#define EX_USAGE 64
+#else
 #include <sysexits.h>
+#endif
 
 #include "argp.h"
 
