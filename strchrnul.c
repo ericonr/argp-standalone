@@ -11,11 +11,12 @@
  * like strchr, but returns a pointer to the NUL character, not a NULL
  * pointer, if the character isn't found. */
 
-char *strchrnul(const char *s, int c)
+char*
+strchrnul(const char* s, int c)
 {
-  const char *p = s;
-  while (*p && (*p != c))
-    p++;
+    const char* p = s;
+    while (*p && (*p != c))
+        p++;
 
-  return (char *) p;
+    return (char*) p;
 }

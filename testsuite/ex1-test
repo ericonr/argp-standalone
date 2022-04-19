@@ -15,4 +15,3 @@ if ./ex1 -help 2>/dev/null ; then exit 1 ; fi
 (./ex1 --help | grep Usage: >/dev/null ) || exit 1
 
 exit 0
-

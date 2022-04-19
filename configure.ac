@@ -11,7 +11,7 @@ AM_CONFIG_HEADER(config.h)
 # errno.h to declare program_invocation_name. Enable it on all
 # systems; no problems have been reported with it so far.
 AC_GNU_SOURCE
-	
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_MAKE_SET
